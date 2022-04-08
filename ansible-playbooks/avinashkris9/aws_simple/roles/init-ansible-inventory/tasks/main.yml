@@ -1,0 +1,15 @@
+---
+# tasks file for init-ansible-inventory
+- name: Add host to ansible inventory group
+  add_host:
+    name: "{{ item.public_ip_address }}"
+    groups: ec2_learning
+  loop: "{{ instance_start_output.instances }}"
+
+
+- name: Verify SSH port is open for instances
+  wait_for:
+    port: 22
+    state: present
+    host: "{{ item.public_ip_address }}"
+  loop: "{{ instance_start_output.instances }}"

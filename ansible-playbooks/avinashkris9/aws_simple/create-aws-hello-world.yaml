@@ -1,0 +1,34 @@
+- hosts: localhost
+  name: Setup basic ansible environment
+  gather_facts: no
+  vars:
+    aws_key_pair: aws_key_pair
+  pre_tasks:
+    - name: create a new ec2 key pair, returns generated private key
+      amazon.aws.ec2_key:
+        name: "{{aws_key_pair}}"
+        region: ap-south-1
+        key_material: "{{ lookup('file', '/home/avinash/.ssh/my-key-pair.pub') }}"
+
+  roles:
+    # - name: Get Current Running EC2 Details
+    #   role: get-ec2-details
+    - name: Start a new EC2 instance
+      role: init-ec2
+    - name: Update ansible In Memory Inventory
+      role: init-ansible-inventory
+
+##############################################################
+# Install HTTP WebServer on EC2
+##############################################################
+- hosts: ec2-learning
+  name: Play to Install a webserver
+
+  vars:
+    ansible_ssh_private_key_file: /home/avinash/.ssh/my-key-pair.pem
+    ansible_user: ec2-user
+
+  roles:
+    - name: Install and configure http
+      role: install-webserver
+      become: yes

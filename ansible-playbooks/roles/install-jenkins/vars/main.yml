@@ -1,0 +1,8 @@
+---
+# vars file for install-jenkins
+
+jenkins_port: 8080
+jenkins_agent_tcp_port: 50000
+jenkins_docker_image_name: myjenkins-blueocean
+jenkins_docker_image_tag: 2.332.1-1
+jenkins_docker_container_name: jenkins-blueocean

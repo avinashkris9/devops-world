@@ -1,0 +1,35 @@
+- hosts: localhost
+  name: Setup basic ansible environment
+  gather_facts: no
+  vars:
+    aws_key_pair: aws_key_pair
+    security_group_name: ec2-default-sg
+    security_group_description: Default Security Group for ssh and http
+    aws_region: ap-south-1
+    aws_vpc_id: vpc-0502cff8120c74ed7
+    aws_ami_id: ami-04893cdb768d0f9ee
+  # pre_tasks:
+  #   - name: create a new ec2 key pair, returns generated private key
+  #     amazon.aws.ec2_key:
+  #       name: "{{aws_key_pair}}"
+  #       region: ap-south-1
+  #       force: yes
+  #       key_material: "{{ lookup('file', '/home/avinash/.ssh/my-key-pair.pub') }}"
+  tasks:
+    - name:
+
+      ec2_instance_info:
+        region: "{{ aws_region }}"
+        filters:
+          "tag:Environment": "IT"
+
+      register: ec2_instances_list
+    - name:
+      amazon.aws.ec2_instance:
+        state: stopped
+        key_name: aws_key_pair
+        region: ap-south-1
+        image_id: "{{aws_ami_id}}"
+        instance_ids: "{item.instance_id}}"
+        filters:
+          "tag:Environment": "Testing"

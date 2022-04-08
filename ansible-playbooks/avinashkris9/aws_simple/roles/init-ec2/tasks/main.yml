@@ -1,0 +1,51 @@
+---
+- name: Creating Security Group
+  amazon.aws.ec2_group:
+    name: "{{security_group_name}}"
+    description: "{{security_group_description}}"
+    region: "{{aws_region}}"
+
+    rules:
+      - proto: tcp
+        from_port: 22
+        to_port: 22
+        cidr_ip: 0.0.0.0/0
+      - proto: tcp
+        from_port: 80
+        to_port: 80
+        cidr_ip: 0.0.0.0/0
+    rules_egress:
+      - proto: all
+        cidr_ip: 0.0.0.0/0
+
+- name: Verify Key Pair Available Before proceeding
+  fail:
+    msg: "AWS SSH KeyPair required. Populate aws_key_pair"
+  when: aws_key_pair is not defined
+
+
+- name: start an instance with a public IP address
+  amazon.aws.ec2_instance:
+    name: "public-compute-instance"
+    key_name: "{{aws_key_pair}}"
+    #vpc_subnet_id: "{{aws_vpc_id}}"
+    region: "{{aws_region}}"
+    instance_type: t2.micro
+    security_group: "{{security_group_name}}"
+    network:
+      assign_public_ip: true
+    image_id: "{{aws_ami_id}}"
+    tags:
+      Environment: Testing
+    state: running
+  register: instance_start_output
+  
+- name: Print Details
+  debug:
+    msg:
+      - "Instance ID - {{instance_start_output.instances[0].instance_id}}"
+      - "Public DNS Name - {{instance_start_output.instances[0].public_dns_name}}"
+      - "Public IP - {{instance_start_output.instances[0].public_ip_address}}"
+      - "Private IP - {{instance_start_output.instances[0].private_ip_address}}"
+
+...

@@ -1,0 +1,18 @@
+---
+# tasks file for install-webserver
+
+- name: Install HTTP Package
+  ansible.builtin.package:
+    name: httpd
+    state: latest
+- name: Write the apache config file
+  ansible.builtin.template:
+    src: http-hello-world.j2
+    dest: "/var/www/html/index.html"
+  notify:
+  - Restart apache
+
+- name: Ensure apache is running
+  ansible.builtin.service:
+    name: httpd
+    state: started

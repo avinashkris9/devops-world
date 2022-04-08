@@ -1,0 +1,8 @@
+---
+# vars file for init-ec2
+
+security_group_name: ec2-default-sg
+security_group_description: Default Security Group for ssh and http
+aws_region: ap-south-1
+aws_vpc_id: vpc-0502cff8120c74ed7
+aws_ami_id: ami-04893cdb768d0f9ee

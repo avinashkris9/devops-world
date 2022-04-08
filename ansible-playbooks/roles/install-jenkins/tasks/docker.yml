@@ -1,0 +1,115 @@
+---
+
+# tasks file for install-docker role to install jenkins as docker container.
+
+- name: Install python
+  package:
+    name: 
+      - python
+      - pip
+      - python-setuptools
+    state: present
+- name: Install Docker Python
+  pip:
+    name: 
+      - setuptools 
+      - docker
+
+    state: present
+- name: Get info on docker host
+  community.docker.docker_host_info:
+  register: result
+
+- name: Debug
+  debug:
+    msg: "{{result }}"
+- name: Create docker bridge network
+
+  community.docker.docker_network:
+    name: jenkins
+#docker run --name jenkins-docker --rm --detach \
+  # --privileged --network jenkins --network-alias docker \
+  # --env DOCKER_TLS_CERTDIR=/certs \
+  # --volume jenkins-docker-certs:/certs/client \
+  # --volume jenkins-data:/var/jenkins_home \
+  # --publish 2376:2376 \
+  # docker:dind --storage-driver overlay2
+- name: Run docker dind
+  community.docker.docker_container:
+    name: jenkins-docker
+    image: docker:dind
+    detach: yes
+    network_mode:  bridge
+    networks:
+      - name: jenkins
+        aliases:
+          - docker
+    state: present
+    recreate: yes
+    exposed_ports:
+      - 2376
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home
+    # volume_driver:
+    #   - overlay2
+- name: Create a jenkins directory for DockerFile Storage
+  ansible.builtin.file:
+    path: ~/jenkins
+    state: directory
+    mode: '0755'
+
+- name: Copy the Docker Image file
+  copy:
+    src: Dockerfile
+    dest: ~/jenkins/Dockerfile
+- name: Build Docker image
+  community.docker.docker_image:
+    build:
+      path: ~/jenkins/
+    name: "{{jenkins_docker_image_name}}"
+    tag: "{{jenkins_docker_image_tag}}"
+    source: build
+
+#
+# docker run --name jenkins-blueocean --rm --detach   --network jenkins --env DOCKER_HOST=tcp://docker:2376   --env DOCKER_CERT_PATH=/certs/client --env DOCKER_TLS_VERIFY=1   --publish 8080:8080 --publish 50000:50000   --volume jenkins-data:/var/jenkins_home   --volume jenkins-docker-certs:/certs/client:ro   myjenkins-blueocean:2.332.1-1
+- name: Run the docker Image
+  community.docker.docker_container:
+    name: "{{jenkins_docker_container_name}}"
+    image: "{{jenkins_docker_image_name}}:{{jenkins_docker_image_tag}}"
+    detach: yes
+    recreate: yes
+    network_mode: bridge
+    networks: 
+      - name: jenkins
+        aliases:
+          - docker
+    state: started
+    published_ports:
+      - "{{jenkins_port}}:{{jenkins_port}}"
+      - "{{jenkins_agent_tcp_port}}:{{jenkins_agent_tcp_port}}"
+    # exposed_ports:
+    #   - "{{jenkins_port}}:{{jenkins_port}}"
+    #   - "{{jenkins_agent_tcp_port}}:{{jenkins_agent_tcp_port}}"
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+    env:
+      DOCKER_CERT_PATH: "/certs/client"
+      DOCKER_TLS_VERIFY: "1"
+      DOCKER_HOST: "tcp://docker:2376 "
+
+
+- name: Get the jenkins admin password
+  community.docker.docker_container_exec:
+    container: "{{jenkins_docker_container_name}}"
+    command: /bin/bash -c "cat /var/jenkins_home/secrets/initialAdminPassword"
+    chdir: /root
+  register: result
+
+- name: <<<<<<<<SENSITIVE INFORMATION>>>>>>>>>>>>
+  debug:
+    var: result.stdout
+    msg: "http://{{inventory_hostname}}:{{jenkins_port}}"
+
+...

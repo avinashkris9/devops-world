@@ -1,0 +1,8 @@
+[AWS-EC2]
+13.233.214.127
+
+[kube]
+192.168.56.22 ansible_user=netcool
+192.168.56.20 ansible_user=netcool
+[devops]
+192.168.56.30 ansible_user=devops

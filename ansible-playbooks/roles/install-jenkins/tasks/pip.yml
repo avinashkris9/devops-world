@@ -1,0 +1,13 @@
+
+- name: Install python
+  package:
+    name: 
+      - python
+
+    state: present
+- name: Install Docker Python
+  package:
+    name: 
+      - docker
+
+    state: present

@@ -1,0 +1,59 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: A simple template to spin an EC2 instance and setup a webserver
+Mappings:
+  RegionMap:
+    ap-south-1:
+      AMI: ami-04893cdb768d0f9ee
+    us-west-1:
+      AMI: ami-655a0a20
+    eu-west-1:
+      AMI: ami-7fd4e10b
+    ap-southeast-1:
+      AMI: ami-72621c20
+    ap-northeast-1:
+      AMI: ami-8e08a38f
+Resources:
+  Ec2Instance:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      UserData:
+        Fn::Base64: !Sub |
+           #!/bin/bash -xe
+            
+            yum install httpd -y
+            echo "<html> <h1> Hello World </h1>" >/var/www/html/index.html
+            systemctl enable httpd.service
+            systemctl start httpd.service
+
+      InstanceType: t2.micro
+      SecurityGroups:
+        - !Ref InstanceSecurityGroup
+        - ec2-default-sg
+      KeyName: aws_key_pair
+
+      ImageId: !FindInMap 
+        - RegionMap
+        - !Ref 'AWS::Region'
+        - AMI
+  InstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable SSH access via port 22
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+Outputs:
+  InstanceId:
+    Description: InstanceId of the newly created EC2 instance
+    Value: !Ref Ec2Instance
+
+  URL:
+    Value: !Join 
+      - ''
+      - - 'http://'
+        - !GetAtt 
+          - Ec2Instance
+          - PublicIp
+    Description: Newly created application URL
