@@ -2,16 +2,22 @@
 
 - name: Add an Apt signing key, uses whichever key is at the URL
   ansible.builtin.apt_key:
-    url: https://pkg.jenkins.io/debian/jenkins.io.key
+    url:  https://pkg.jenkins.io/debian-stable/jenkins.io.key
     state: present
 
 
 - name: Add specified repository into sources list using specified filename
   ansible.builtin.apt_repository:
-    repo: deb https://pkg.jenkins.io/debian-stable/ stable main
+    repo: deb https://pkg.jenkins.io/debian-stable/ binary/
     state: present
     filename: jenkins
     update_cache: yes
 
-
+- name: Install packages
+  apt:
+    pkg:
+    - fontconfig 
+    - openjdk-11-jre
+    - maven
+    - 
 ...

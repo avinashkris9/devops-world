@@ -1,0 +1,9 @@
+resource "aws_key_pair" "deployer" {
+  key_name   = "my_key_pair"
+  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC7kQiDxoUltkhLol648FK3ZyMRbPhLClyNhRBhMYg1iVs9cC3QaoZ4Zb+LOx2sPitzccQ7iwtg7mZHyz2L9Ax6lY2CIAc3vUJmFvSSYh+c8I+++I2xZpVUOP5Pw2LOLLizYb/RCFxaIAiifpuYpI/ITSOcBFD566Xzhlkwk7jjqsfWYbrvU5hsQOYYE0fyxH+0kDDoQv/86aQi/oUA/jkxj/ISE2GIm957cJZ4SsnUEPpg92A4J6KLFptY+aR3S1Egs97fNex+LwnMq2pvmBJ5h0s6rfZEnn6OD5I8ors2tEyWnEI9aEtzCx/FZ1JpiGpQMIfkNdkz5pYw7ACSquri7E5PolQVTfkoDyoQFIean/wDIP+wgk+Zxw0MN44yrDeaO6Jv0EFGW1y7uc8Ob5O8nfDkIbJAxI12QxaTKll4vqx8VAlnGiKV+17AB3KZjpkCP2EAavJfCr9tNF4jp72z1hQrwWNz0ybpAojThFuz/Mwjes+xy5hFqIQ3GqCNDbCUNIdoUVqfOg7rm97YQfCRgyUx4OUk7SAJG2AT2rEcGQ2P1tnU1vGebJwaOif0QbjbcSxypO8SMQapLHqiolchMK2TDDXgiecWToGgTPJcnQPmnhrgwmqhTzcT9kgZsouH0CmrJdMZeqWiTZu1RA3XXj0cuGA3P5Gw0ldOBBdtyw=="
+}
+
+ output "key_pair" {
+  value = aws_key_pair.deployer.id
+
+}

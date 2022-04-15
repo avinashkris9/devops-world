@@ -1,0 +1,4 @@
+---
+# vars file for docker-build-java
+
+docker_image: "{{docker_image_name}}:{{release_id}}"

@@ -22,3 +22,19 @@ data "aws_key_pair" "mykeypair" {
   key_name = "aws_key_pair"
  
 }
+
+data "aws_security_group" "sg_ssh"{
+    filter {
+    name   = "group-name"
+    values = ["default-ssh-access"]
+  }
+}
+
+data "aws_instance" "devops_controller" {
+  
+
+  filter {
+    name   = "tag:serverType"
+    values = ["devops-controller"]
+  }
+}

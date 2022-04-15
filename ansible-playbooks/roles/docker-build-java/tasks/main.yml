@@ -1,0 +1,17 @@
+---
+
+- name: Log into DockerHub
+  docker_login:
+    username: "{{dockerid}}"
+    password: "{{docker_password}}"
+
+
+# tasks file for docker-build-java
+- name: Build image 
+  community.docker.docker_image:
+    name: "{{docker_image}}"
+    repository: "{{dockerid}}/{{docker_image}}"
+    push: yes
+    source: build
+    build:
+      path: "{{project_path}}"

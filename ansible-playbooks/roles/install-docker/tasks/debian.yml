@@ -43,4 +43,19 @@
       - docker-ce 
       - docker-ce-cli 
       - containerd.io
+
+- name: Install python
+  package:
+    name: 
+      - python
+      - pip
+      - python-setuptools
+    state: present
+- name: Install Docker Python
+  pip:
+    name: 
+      - setuptools 
+      - docker
+
+    state: present
 ...

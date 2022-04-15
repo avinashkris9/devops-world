@@ -2,10 +2,7 @@
 
 # Import modules from modules directory
 # Required to load the SGs
-module "prod" {
-   source = "./../modules"
- 
-}
+
 
 
 ######################################
@@ -16,9 +13,9 @@ resource "aws_instance" "prod_ec2" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.micro"
   count=1
-  #availability_zone = var.az
+availability_zone = data.aws_instance.devops_controller.availability_zone
  key_name=data.aws_key_pair.mykeypair.key_name
-vpc_security_group_ids = [module.prod.security_group_ssh,module.prod.security_group_http_8080]
+vpc_security_group_ids = [data.aws_security_group.sg_ssh.id]
 user_data = <<EOF
 #!/bin/bash
 echo "Changing Hostname"
@@ -43,4 +40,8 @@ output "prod_ec2_ip"{
 output "prod_ec2_tags"{
      value = "${aws_instance.prod_ec2.*.tags_all}"
     
+}
+
+output "prod_ec2_private_ip"{
+     value = "${aws_instance.prod_ec2.*.private_ip}"
 }
